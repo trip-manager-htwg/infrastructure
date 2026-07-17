@@ -1,0 +1,54 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        type: choice
+        options:
+          - staging
+          - prod
+        default: staging
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Write tfvars
+        run: echo "${{ secrets.TF_VARS }}" > environments/${{ inputs.environment }}/infra/terraform.tfvars
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SA }}
+
+      - name: Set GCP Project
+        run: |
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud auth application-default set-quota-project ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Terraform Init
+        working-directory: environments/${{ inputs.environment }}/infra
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="prefix=terraform/state"
+
+      - name: Terraform Plan
+        working-directory: environments/${{ inputs.environment }}/infra
+        run: terraform plan -var-file="terraform.tfvars"
+
+      - name: Terraform Apply
+        working-directory: environments/${{ inputs.environment }}/infra
+        run: terraform apply -auto-approve -var-file="terraform.tfvars"

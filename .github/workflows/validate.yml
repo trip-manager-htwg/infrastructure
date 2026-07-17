@@ -1,0 +1,26 @@
+name: Terraform Validate
+
+on:
+  push:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (modules only)
+        run: terraform init -backend=false
+        working-directory: environments/prod/infra
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: environments/prod/infra
