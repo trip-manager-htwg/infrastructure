@@ -1,11 +1,11 @@
 variable "gcs_bucket" {
-  type    = string
+  type = string
 }
 
 variable "region" {
-  type    = string
+  type = string
 }
 
 variable "cors_origins" {
-  type    = list(string)
+  type = list(string)
 }

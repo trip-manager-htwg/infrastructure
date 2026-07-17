@@ -26,7 +26,7 @@ resource "google_container_cluster" "primary" {
   provider = google-beta
 
   name     = "trip-manager-${var.environment}"
-  location = var.region   # Autopilot ist immer regional
+  location = var.region # Autopilot ist immer regional
   project  = var.project_id
 
   enable_autopilot = true

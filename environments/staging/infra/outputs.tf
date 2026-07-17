@@ -16,6 +16,6 @@ output "github_actions_sa" {
 }
 
 output "staging_ip" {
-  value = module.dns.ip_address
+  value       = module.dns.ip_address
   description = "Static IP for GKE Gateway"
 }
