@@ -89,7 +89,13 @@ variable "secret_names" {
     "trips-migration-url",
     "newsletter-migration-url",
 
+    "newsletter-database-url",
+    "trips-database-url",
+    "users-database-url",
+
     "github-token",
     "internal-secret",
+
+    "github-pat-packages"
   ]
 }
